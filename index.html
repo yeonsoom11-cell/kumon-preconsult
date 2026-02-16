@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>구몬화상학습 사전 설문상담</title>
+  <title>구몬화상학습 사전 상담설문</title>
 
   <!-- Pretendard 로드 (통일감) -->
   <link rel="stylesheet" as="style" crossorigin
@@ -619,7 +619,7 @@
     <div class="preview-container">
       <!-- ✅ 최종 화면에서도 모바일/카카오 인앱에서 이 미리보기가 보여야 함 -->
       <div id="capture-area" class="summary-card">
-        <div class="card-header">📋 상담 사전설문</div>
+        <div class="card-header">📋 구몬화상학습 사전 상담설문</div>
         <div id="live-content">
           <div class="item"><b>이름:</b> <span id="v-name">-</span></div>
           <div class="item"><b>연락처:</b> <span id="v-phone">-</span></div>
@@ -672,7 +672,7 @@
       </div>
       <div class="sheet-body">
         <div class="summary-card" style="position:static; border-width:1px;">
-          <div class="card-header">📋 상담 사전설문</div>
+          <div class="card-header">📋 구몬화상학습 사전 상담설문</div>
           <div id="live-content-sheet"></div>
         </div>
       </div>
@@ -933,7 +933,7 @@
 
       // 카톡에 붙여넣기 좋은 줄글/템플릿 형태
       return [
-        "📋 상담 사전설문",
+        "📋 구몬화상학습 사전 상담설문",
         "",
         `• 이름: ${name}`,
         `• 연락처: ${phone}`,
@@ -1063,7 +1063,7 @@
           const fileName = `상담신청_${document.getElementById('in_name').value || '결과'}.png`;
           const file = new File([blob], fileName, { type: "image/png" });
           try {
-            await navigator.share({ files: [file], title: '상담 사전설문' });
+            await navigator.share({ files: [file], title: '구몬화상학습 사전 상담설문' });
           } catch (err) {
             await saveImageFromBlob(blob);
             alert("공유가 취소되었거나 지원되지 않아 이미지로 저장했습니다.");
