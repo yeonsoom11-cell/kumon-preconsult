@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>구몬화상학습 사전 설문상담</title>
+
+  <!-- Pretendard 로드 (통일감) -->
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css" />
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --main-color:#4A90E2;
+      --bg-color:#f0f2f5;
+      --text:#222;
+      --muted:#666;
+      --card:#fff;
+      --border:#e7e7e7;
+      --ring: rgba(74,144,226,.25);
+      --danger:#ff4d4d;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --shadow-soft: 0 6px 18px rgba(0,0,0,0.06);
+      --radius: 18px;
+
+      /* ✅ color-mix 대체용(캡처 안정성) */
+      --card-80: rgba(255,255,255,0.80);
+      --card-90: rgba(255,255,255,0.90);
+      --card-92: rgba(255,255,255,0.92);
+      --border-soft: rgba(231,231,231,0.65);
+      --text-soft: rgba(34,34,34,0.85);
+      --muted-soft: rgba(102,102,102,0.85);
+      --main-10: rgba(74,144,226,0.10);
+      --main-40: rgba(74,144,226,0.40);
+      --main-70: rgba(74,144,226,0.70);
+    }
+
+    /* ✅ 다크모드 제거 */
+
+    *{ box-sizing: border-box; }
+    body{
+      font-family: Pretendard, -apple-system, system-ui, sans-serif;
+      background: var(--bg-color);
+      margin:0;
+      padding:15px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .main-wrapper{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:20px;
+      max-width:1000px;
+      margin:auto;
+    }
+
+    .container{
+      flex:1;
+      min-width:320px;
+      max-width:520px;
+      background: var(--card);
+      padding:24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .preview-container{
+      flex:1;
+      min-width:320px;
+      max-width:420px;
+      position: relative;
+    }
+
+    /* 상단 진행 표시(스텝퍼 + 프로그레스) */
+    .progress-wrap{
+      margin-bottom: 16px;
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card-80);
+    }
+    .steps-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .step-pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .dot{
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--card-90);
+    }
+    .step-pill.active .dot,
+    .step-pill.done .dot{
+      border-color: var(--main-color);
+      color: white;
+      background: var(--main-color);
+    }
+    .step-pill.active,
+    .step-pill.done{
+      color: var(--text);
+      font-weight: 600;
+    }
+    .bar{
+      height: 8px;
+      border-radius: 999px;
+      background: var(--border-soft);
+      overflow:hidden;
+    }
+    .bar > div{
+      height: 100%;
+      width: 33%;
+      background: var(--main-color);
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    .bar-caption{
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+    }
+
+    /* STEP */
+    .step{ display:none; }
+    .step.active{ display:block; }
+
+    h2{
+      font-size: 1.25rem;
+      color: var(--text);
+      margin: 6px 0 18px;
+      border-left: 4px solid var(--main-color);
+      padding-left: 10px;
+      letter-spacing: -0.2px;
+    }
+
+    .input-group{ margin-bottom: 15px; }
+    .input-group label{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+      color: var(--text-soft);
+    }
+    .req-badge{
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--main-40);
+      color: var(--main-color);
+      background: var(--main-10);
+      font-weight: 700;
+    }
+    .help{
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="text"], input[type="tel"], select, textarea{
+      width:100%;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--card-92);
+      color: var(--text);
+      transition: border-color .15s ease, box-shadow .15s ease;
+      outline: none;
+    }
+    input[type="text"]::placeholder,
+    input[type="tel"]::placeholder,
+    textarea::placeholder{
+      color: rgba(102,102,102,0.70);
+    }
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    select:focus,
+    textarea:focus{
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+
+    /* 오류 표시 */
+    .is-error{
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 4px rgba(255,77,77,0.20) !important;
+    }
+    .error-msg{
+      margin-top: 7px;
+      font-size: 12px;
+      color: var(--danger);
+      display:none;
+    }
+    .error-msg.show{ display:block; }
+
+    /* 옵션(칩) */
+    .options{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .options label{
+      border: 1px solid var(--border);
+      padding: 12px 12px;
+      border-radius: 14px;
+      text-align:center;
+      cursor:pointer;
+      font-size: 0.88rem;
+      background: var(--card-92);
+      transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+      position: relative;
+      overflow:hidden;
+    }
+    .options label:hover{
+      box-shadow: var(--shadow-soft);
+      transform: translateY(-1px);
+    }
+    input[type="radio"], input[type="checkbox"]{ display:none; }
+
+    /* 선택 시 체크 표시 + 강조 */
+    input[type="radio"]:checked + label,
+    input[type="checkbox"]:checked + label{
+      border-color: var(--main-70);
+      background: var(--main-10);
+      color: var(--main-color);
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(74,144,226,0.18);
+      transform: translateY(-1px);
+    }
+    input[type="radio"]:checked + label::after,
+    input[type="checkbox"]:checked + label::after{
+      content: "✓";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: var(--main-color);
+      color: white;
+      font-size: 13px;
+      box-shadow: 0 6px 14px rgba(74,144,226,0.30);
+    }
+
+    /* 버튼 */
+    .nav-btns{
+      display:flex;
+      gap:10px;
+      margin-top: 22px;
+    }
+    button{
+      flex:1;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      cursor:pointer;
+      transition: transform .08s ease, box-shadow .15s ease, opacity .15s ease;
+      letter-spacing: -0.2px;
+    }
+    button:active{ transform: translateY(1px); }
+
+    .btn-next{
+      background: var(--main-color);
+      color:white;
+      box-shadow: 0 10px 18px rgba(74,144,226,0.22);
+    }
+    .btn-next:hover{ box-shadow: 0 12px 22px rgba(74,144,226,0.28); }
+
+    .btn-prev{
+      background: transparent;
+      border-color: var(--border);
+      color: rgba(34,34,34,0.75);
+    }
+    .btn-prev:hover{ box-shadow: var(--shadow-soft); }
+
+    .btn-save{ background:#28a745; color:white; box-shadow: 0 10px 18px rgba(40,167,69,0.18); }
+    .btn-reset{ background: var(--danger); color:white; margin-top:10px; box-shadow: 0 10px 18px rgba(255,77,77,0.16); }
+
+    /* 미리보기 카드 */
+    .summary-card{
+      position: sticky;
+      top: 20px;
+      background: var(--card);
+      padding: 18px;
+      border-radius: 16px;
+      border: 2px solid var(--main-color);
+      box-shadow: var(--shadow-soft);
+    }
+    .card-header{
+      font-weight: 900;
+      color: var(--main-color);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      text-align:center;
+      letter-spacing: -0.2px;
+    }
+    .item{
+      margin-bottom: 8px;
+      font-size: 13px;
+      display:flex;
+      gap: 8px;
+    }
+    .item b{
+      width: 90px;
+      color: var(--muted-soft);
+      flex-shrink:0;
+    }
+
+    .hidden{ display:none !important; }
+
+    /* 캡처 유지(지금은 최종 화면에서도 미리보기 보여야 해서 sr-capture는 사용 안 함 / 필요시만 유지) */
+    .sr-capture{
+      position: fixed !important;
+      left: -10000px !important;
+      top: -10000px !important;
+      width: 420px;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .exit-guide{
+      font-size: 12px;
+      color: var(--muted);
+      text-align:center;
+      margin-top: 18px;
+      line-height: 1.6;
+      word-break: keep-all;
+      padding: 0 10px;
+    }
+
+    /* ✅ 텍스트 복사 fallback UI */
+    .text-fallback{
+      border: 1px solid var(--border);
+      background: var(--card-92);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .text-fallback .tip{
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+      word-break: keep-all;
+    }
+    .text-fallback textarea{
+      width: 100%;
+      min-height: 170px;
+      resize: vertical;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #fff;
+    }
+    .text-fallback .mini-btns{
+      display:flex;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .btn-outline{
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    /* 모바일: */
+    .mobile-only{ display:none; }
+    .sheet-overlay{
+      display:none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .sheet{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 1000;
+      transform: translateY(110%);
+      transition: transform .25s ease;
+      padding: 10px 12px 14px;
+    }
+    .sheet-inner{
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .sheet-handle{
+      width: 42px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.15);
+      margin: 10px auto 6px;
+    }
+    .sheet-top{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 14px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sheet-title{
+      font-weight: 900;
+      letter-spacing: -0.2px;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .sheet-close{
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-weight: 800;
+      flex: 0 0 auto;
+      box-shadow: none;
+    }
+    .sheet-body{ padding: 12px 14px 16px; }
+
+    .preview-open-btn{
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card-92);
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    @media (max-width: 768px){
+      body{ padding: 12px; }
+      .container{ padding: 18px; border-radius: 16px; }
+      .main-wrapper{ gap: 14px; }
+      .preview-container{ max-width: 520px; width: 100%; }
+
+      .nav-btns{
+        position: sticky;
+        bottom: 0;
+        background: var(--card-92);
+        padding: 12px 0 6px;
+        margin-top: 16px;
+        z-index: 5;
+        box-shadow: 0 -10px 18px rgba(0,0,0,0.05);
+      }
+
+      .mobile-only{ display:block; }
+
+      body.sheet-open{ overflow: hidden; }
+      body.sheet-open .sheet-overlay{ display:block; opacity: 1; }
+      body.sheet-open .sheet{ transform: translateY(0%); }
+
+      #final-action-area{ margin-top: 12px !important; }
+
+      /* 모바일에서 최종 미리보기는 반드시 보여야 하므로 sticky 해제(자연스럽게 상단에) */
+      .summary-card{ position: static; top: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-wrapper">
+    <div class="container" id="form-side">
+      <div class="progress-wrap" aria-label="진행 상태">
+        <div class="steps-row">
+          <div class="step-pill" id="pill1"><span class="dot">1</span>기본정보</div>
+          <div class="step-pill" id="pill2"><span class="dot">2</span>상세정보</div>
+          <div class="step-pill" id="pill3"><span class="dot">3</span>상담희망</div>
+        </div>
+        <div class="bar" aria-hidden="true"><div id="progress-bar"></div></div>
+        <div class="bar-caption">
+          <span id="progress-text">STEP 1 / 3</span>
+          <span>30초면 작성 완료🙂</span>
+        </div>
+      </div>
+
+      <button type="button" class="preview-open-btn mobile-only" onclick="openPreviewSheet()">📋 미리보기 보기</button>
+
+      <div id="step1" class="step active">
+        <h2>STEP 1. 기본 정보 입력</h2>
+
+        <div class="input-group">
+          <label>학습자 이름 <span class="req-badge">필수</span></label>
+          <input type="text" id="in_name" placeholder="이름 입력" oninput="updateLive(); clearFieldError('in_name');" />
+          <div class="error-msg" id="err_in_name">이름을 입력해주세요.</div>
+        </div>
+
+        <div class="input-group">
+          <label>연락처 <span class="req-badge">필수</span></label>
+          <input type="tel" id="in_phone" maxlength="13" placeholder="010-0000-0000"
+            oninput="autoHyphen(this); updateLive(); clearFieldError('in_phone');" />
+          <div class="help">예: 010-1234-5678</div>
+          <div class="error-msg" id="err_in_phone">연락처를 입력해주세요.</div>
+        </div>
+
+        <div class="input-group">
+          <label>문의 주신 분 <span class="req-badge">필수</span></label>
+          <div class="options">
+            <input type="radio" name="who" id="who1" value="학습자 본인" onchange="updateLive(); clearGroupError('who');" />
+            <label for="who1">학습자 본인</label>
+            <input type="radio" name="who" id="who2" value="학부모" onchange="updateLive(); clearGroupError('who');" />
+            <label for="who2">학부모</label>
+          </div>
+          <div class="error-msg" id="err_who">문의 주신 분을 선택해주세요.</div>
+        </div>
+
+        <div class="input-group">
+          <label>학습자 연령대 <span class="req-badge">필수</span></label>
+          <div class="options">
+            <input type="radio" name="main_age" id="age_mid" value="중등" onchange="updateLive(); clearGroupError('main_age');" />
+            <label for="age_mid">중등</label>
+            <input type="radio" name="main_age" id="age_high" value="고등" onchange="updateLive(); clearGroupError('main_age');" />
+            <label for="age_high">고등</label>
+            <input type="radio" name="main_age" id="age_adult" value="성인" onchange="updateLive(); clearGroupError('main_age');" />
+            <label for="age_adult">성인</label>
+          </div>
+          <div class="error-msg" id="err_main_age">학습자 연령대를 선택해주세요.</div>
+        </div>
+
+        <div class="nav-btns">
+          <button class="btn-next" onclick="validateStep1()">다음 단계</button>
+        </div>
+      </div>
+
+      <div id="step2" class="step">
+        <h2>STEP 2. 상세 정보 선택</h2>
+        <div id="step2-questions"></div>
+        <div class="error-msg" id="err_step2">필수 항목을 선택해주세요.</div>
+
+        <div class="nav-btns">
+          <button class="btn-prev" onclick="prevStep(1)">이전</button>
+          <button class="btn-next" onclick="validateStep2()">다음 단계</button>
+        </div>
+      </div>
+
+      <div id="step3" class="step">
+        <h2>STEP 3. 상담 희망 사항</h2>
+
+        <div class="input-group">
+          <label>상담 방식 <span class="req-badge">필수</span></label>
+          <div class="options">
+            <input type="radio" name="method" id="m1" value="전화상담" onchange="updateLive(); clearGroupError('method');" />
+            <label for="m1">전화</label>
+            <input type="radio" name="method" id="m2" value="카톡상담" onchange="updateLive(); clearGroupError('method');" />
+            <label for="m2">카톡</label>
+            <input type="radio" name="method" id="m3" value="문자상담" onchange="updateLive(); clearGroupError('method');" />
+            <label for="m3">문자</label>
+          </div>
+          <div class="error-msg" id="err_method">상담 방식을 선택해주세요.</div>
+        </div>
+
+        <div class="input-group">
+          <label>희망 시간 <span class="req-badge">필수</span></label>
+          <select id="hope_time" onchange="updateLive()">
+            <option value="상관없음">상관없음</option>
+            <option value="오전 9시 ~ 11시">오전 9시 ~ 11시</option>
+            <option value="오전 11시 ~ 오후 1시">오전 11시 ~ 오후 1시</option>
+            <option value="오후 1시 ~ 3시">오후 1시 ~ 3시</option>
+            <option value="오후 3시 ~ 5시">오후 3시 ~ 5시</option>
+            <option value="오후 5시 ~ 6시">오후 5시 ~ 6시</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>기타 질문사항</label>
+          <textarea id="memo" rows="3" oninput="updateLive()"></textarea>
+        </div>
+
+        <div class="nav-btns">
+          <button class="btn-prev" onclick="prevStep(2)">이전</button>
+          <button class="btn-next" onclick="finish()">최종 완료</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <!-- ✅ 최종 화면에서도 모바일/카카오 인앱에서 이 미리보기가 보여야 함 -->
+      <div id="capture-area" class="summary-card">
+        <div class="card-header">📋 상담 사전설문</div>
+        <div id="live-content">
+          <div class="item"><b>이름:</b> <span id="v-name">-</span></div>
+          <div class="item"><b>연락처:</b> <span id="v-phone">-</span></div>
+          <div class="item"><b>신청자:</b> <span id="v-who">-</span></div>
+          <div class="item"><b>구분:</b> <span id="v-age">-</span></div>
+          <div class="item"><b>학년/연령:</b> <span id="v-grade">-</span></div>
+          <div class="item"><b>학습수준:</b> <span id="v-level">-</span></div>
+          <div class="item"><b>관심과목:</b> <span id="v-sub">-</span></div>
+          <div class="item"><b>신청사유:</b> <span id="v-reason">-</span></div>
+          <div class="item"><b>상담방식:</b> <span id="v-method">-</span></div>
+          <div class="item"><b>희망시간:</b> <span id="v-time">상관없음</span></div>
+          <div class="item"><b>기타사항:</b> <span id="v-memo">-</span></div>
+        </div>
+      </div>
+
+      <div id="final-action-area" class="hidden" style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+        <button id="main-action-btn" class="btn-next" onclick="handleMainAction()">이미지 공유하기</button>
+        <button class="btn-save" id="btn-save-file" onclick="saveImage()">이미지 파일 저장</button>
+
+        <!-- ✅ 카카오 인앱 텍스트복사 실패 시 fallback -->
+        <div id="text-fallback" class="text-fallback hidden">
+          <div class="tip">
+            자동 복사가 제한되어 있어요. 아래 내용을 <b>길게 눌러 전체선택 → 복사</b>해서 카톡에 붙여넣어 주세요.
+          </div>
+          <textarea id="result-textarea" readonly></textarea>
+          <div class="mini-btns">
+            <button type="button" class="btn-outline" onclick="selectFallbackText()">전체선택</button>
+            <button type="button" class="btn-outline" onclick="tryCopyFallbackText()">복사 다시 시도</button>
+          </div>
+        </div>
+
+        <button class="btn-reset" onclick="location.reload()">처음부터 다시</button>
+
+        <p class="exit-guide">
+          전송이 완료되셨다면,<br />
+          해당 창을 종료하시거나 뒤로 가기 버튼을 통해 종료해주세요.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모바일 미리보기 바텀시트(A) -->
+  <div class="sheet-overlay" onclick="closePreviewSheet()"></div>
+  <div class="sheet" aria-hidden="true">
+    <div class="sheet-inner">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top">
+        <div class="sheet-title">📋 미리보기</div>
+        <button type="button" class="sheet-close" onclick="closePreviewSheet()">닫기</button>
+      </div>
+      <div class="sheet-body">
+        <div class="summary-card" style="position:static; border-width:1px;">
+          <div class="card-header">📋 상담 사전설문</div>
+          <div id="live-content-sheet"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function autoHyphen(obj) {
+      let str = obj.value.replace(/[^0-9]/g, '');
+      if (str.length < 4) { obj.value = str; }
+      else if (str.length < 7) { obj.value = str.substr(0, 3) + '-' + str.substr(3); }
+      else if (str.length < 11) { obj.value = str.substr(0, 3) + '-' + str.substr(3, 3) + '-' + str.substr(6); }
+      else { obj.value = str.substr(0, 3) + '-' + str.substr(3, 4) + '-' + str.substr(7); }
+    }
+
+    let currentStep = 1;
+
+    function nextStep(n) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById(`step${n}`).classList.add('active');
+      currentStep = n;
+      updateProgressUI();
+      window.scrollTo(0,0);
+    }
+
+    function prevStep(n) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById(`step${n}`).classList.add('active');
+      currentStep = n;
+      updateProgressUI();
+    }
+
+    function updateProgressUI(){
+      const bar = document.getElementById('progress-bar');
+      const txt = document.getElementById('progress-text');
+      const width = currentStep === 1 ? 33 : currentStep === 2 ? 66 : 100;
+      bar.style.width = width + '%';
+      txt.innerText = `STEP ${currentStep} / 3`;
+
+      const p1 = document.getElementById('pill1');
+      const p2 = document.getElementById('pill2');
+      const p3 = document.getElementById('pill3');
+      [p1,p2,p3].forEach(p => p.classList.remove('active','done'));
+
+      if(currentStep === 1){ p1.classList.add('active'); }
+      if(currentStep === 2){ p1.classList.add('done'); p2.classList.add('active'); }
+      if(currentStep === 3){ p1.classList.add('done'); p2.classList.add('done'); p3.classList.add('active'); }
+    }
+
+    function setFieldError(fieldId, message){
+      const el = document.getElementById(fieldId);
+      const err = document.getElementById('err_' + fieldId);
+      if(el){ el.classList.add('is-error'); el.setAttribute('aria-invalid','true'); }
+      if(err){
+        if(message) err.innerText = message;
+        err.classList.add('show');
+      }
+    }
+    function clearFieldError(fieldId){
+      const el = document.getElementById(fieldId);
+      const err = document.getElementById('err_' + fieldId);
+      if(el){ el.classList.remove('is-error'); el.removeAttribute('aria-invalid'); }
+      if(err){ err.classList.remove('show'); }
+    }
+    function setGroupError(groupName){
+      const err = document.getElementById('err_' + groupName);
+      if(err) err.classList.add('show');
+    }
+    function clearGroupError(groupName){
+      const err = document.getElementById('err_' + groupName);
+      if(err) err.classList.remove('show');
+    }
+
+    function validateStep1() {
+      let ok = true;
+
+      const nameVal = document.getElementById('in_name').value.trim();
+      const phoneVal = document.getElementById('in_phone').value.trim();
+      const whoChecked = document.querySelector('input[name="who"]:checked');
+      const ageChecked = document.querySelector('input[name="main_age"]:checked');
+
+      if(!nameVal){ setFieldError('in_name', '이름을 입력해주세요.'); ok = false; } else { clearFieldError('in_name'); }
+      if(!phoneVal){ setFieldError('in_phone', '연락처를 입력해주세요.'); ok = false; } else { clearFieldError('in_phone'); }
+      if(!whoChecked){ setGroupError('who'); ok = false; } else { clearGroupError('who'); }
+      if(!ageChecked){ setGroupError('main_age'); ok = false; } else { clearGroupError('main_age'); }
+
+      if(!ok) return alert("필수 항목을 모두 입력해주세요.");
+
+      renderStep2(ageChecked.value);
+      nextStep(2);
+    }
+
+    function renderStep2(type) {
+      const container = document.getElementById('step2-questions');
+      const subjects = ['국어','수학','과학','영어','중국어','일본어','한자'];
+      const subHtml = subjects.map(s => `
+        <input type="checkbox" name="subject" id="s_${s}" value="${s}" onchange="updateLive()">
+        <label for="s_${s}">${s}</label>
+      `).join('');
+
+      let html = '';
+      if(type === '중등' || type === '고등') {
+        const grades = type === '중등' ? ['중1','중2','중3'] : ['고1','고2','고3'];
+        html = `
+          <div class="input-group">
+            <label>학년 <span class="req-badge">필수</span></label>
+            <div class="options">
+              ${grades.map(g => `
+                <input type="radio" name="grade" id="${g}" value="${g}" onchange="updateLive(); document.getElementById('err_step2').classList.remove('show');">
+                <label for="${g}">${g}</label>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>학습 수준 <span class="req-badge">필수</span></label>
+            <div class="options">
+              <input type="radio" name="level" id="l1" value="상위권" onchange="updateLive()"><label for="l1">상위권</label>
+              <input type="radio" name="level" id="l2" value="중위권" onchange="updateLive()"><label for="l2">중위권</label>
+              <input type="radio" name="level" id="l3" value="하위권" onchange="updateLive()"><label for="l3">하위권</label>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>과목 (복수선택)</label>
+            <div class="options">${subHtml}</div>
+          </div>
+
+          <div class="input-group">
+            <label>신청 사유</label>
+            <div class="options" style="grid-template-columns:1fr;">
+              ${['선행학습','기초보충','응용력향상','습관형성','취미'].map(r => `
+                <input type="checkbox" name="reason" id="${r}" value="${r}" onchange="updateLive()">
+                <label for="${r}">${r}</label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        html = `
+          <div class="input-group">
+            <label>연령대 <span class="req-badge">필수</span></label>
+            <div class="options">
+              <input type="radio" name="grade" id="a1" value="20대" onchange="updateLive(); document.getElementById('err_step2').classList.remove('show');"><label for="a1">20대</label>
+              <input type="radio" name="grade" id="a2" value="30대" onchange="updateLive(); document.getElementById('err_step2').classList.remove('show');"><label for="a2">30대</label>
+              <input type="radio" name="grade" id="a3" value="40대" onchange="updateLive(); document.getElementById('err_step2').classList.remove('show');"><label for="a3">40대</label>
+              <input type="radio" name="grade" id="a4" value="50대 이상" onchange="updateLive(); document.getElementById('err_step2').classList.remove('show');"><label for="a4">50대 이상</label>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>과목 (복수선택)</label>
+            <div class="options">${subHtml}</div>
+          </div>
+
+          <div class="input-group">
+            <label>신청 사유</label>
+            <div class="options" style="grid-template-columns:1fr;">
+              ${['기초보충','습관형성','자기계발','취미활동'].map(r => `
+                <input type="checkbox" name="reason" id="${r}" value="${r}" onchange="updateLive()">
+                <label for="${r}">${r}</label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+      document.getElementById('err_step2').classList.remove('show');
+      updateLive();
+    }
+
+    function validateStep2() {
+      if(!document.querySelector('input[name="grade"]:checked')){
+        document.getElementById('err_step2').classList.add('show');
+        return alert("필수 항목을 선택해주세요.");
+      }
+      document.getElementById('err_step2').classList.remove('show');
+      nextStep(3);
+    }
+
+    function updateLive() {
+      document.getElementById('v-name').innerText = document.getElementById('in_name').value || '-';
+      document.getElementById('v-phone').innerText = document.getElementById('in_phone').value || '-';
+      document.getElementById('v-who').innerText = document.querySelector('input[name="who"]:checked')?.value || '-';
+      document.getElementById('v-age').innerText = document.querySelector('input[name="main_age"]:checked')?.value || '-';
+      document.getElementById('v-grade').innerText = document.querySelector('input[name="grade"]:checked')?.value || '-';
+      document.getElementById('v-level').innerText = document.querySelector('input[name="level"]:checked')?.value || '해당없음';
+      document.getElementById('v-sub').innerText = Array.from(document.querySelectorAll('input[name="subject"]:checked')).map(el => el.value).join(', ') || '-';
+      document.getElementById('v-reason').innerText = Array.from(document.querySelectorAll('input[name="reason"]:checked')).map(el => el.value).join(', ') || '-';
+      document.getElementById('v-method').innerText = document.querySelector('input[name="method"]:checked')?.value || '-';
+      document.getElementById('v-time').innerText = document.getElementById('hope_time').value;
+      document.getElementById('v-memo').innerText = document.getElementById('memo').value || '-';
+
+      const live = document.getElementById('live-content');
+      const sheet = document.getElementById('live-content-sheet');
+      if(live && sheet) sheet.innerHTML = live.innerHTML;
+    }
+
+    function openPreviewSheet(){ updateLive(); document.body.classList.add('sheet-open'); }
+    function closePreviewSheet(){ document.body.classList.remove('sheet-open'); }
+
+    const ua = navigator.userAgent.toLowerCase();
+    const isKakaoInApp = ua.indexOf('kakaotalk') !== -1;      // ✅ 카카오 인앱
+    const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+
+    function finish() {
+      if(!document.querySelector('input[name="method"]:checked')){
+        setGroupError('method');
+        return alert("상담 방식을 선택해주세요.");
+      }
+      clearGroupError('method');
+
+      // ✅ 최신 값 반영 + 모바일 sheet 닫기
+      updateLive();
+      closePreviewSheet();
+
+      document.getElementById('form-side').classList.add('hidden');
+      document.getElementById('final-action-area').classList.remove('hidden');
+
+      // ✅ 최종 화면에서 미리보기(카드)가 먼저 보여야 하므로 sr-capture로 숨기지 않습니다.
+      // (이전 문제: 모바일에서 캡처 DOM을 숨기다 보니 최종 미리보기가 안 보였음)
+
+      const mainBtn = document.getElementById('main-action-btn');
+      const saveBtn = document.getElementById('btn-save-file');
+      const fallback = document.getElementById('text-fallback');
+
+      // 최종 진입 시 fallback 숨김 초기화
+      fallback.classList.add('hidden');
+
+      if (isKakaoInApp) {
+        mainBtn.innerText = "상담내용 복사하기";
+        saveBtn.classList.add('hidden'); // ✅ 카카오 인앱에서는 이미지 기능 포기
+      } else if (isMobile) {
+        mainBtn.innerText = "이미지 공유하기";
+        saveBtn.classList.remove('hidden');
+      } else {
+        mainBtn.innerText = "이미지 복사하기(바로 붙여넣기)";
+        saveBtn.classList.remove('hidden');
+      }
+
+      window.scrollTo(0,0);
+    }
+
+    /* ✅ 상담결과 텍스트 생성 */
+    function buildResultText(){
+      const name = document.getElementById('v-name').innerText || '-';
+      const phone = document.getElementById('v-phone').innerText || '-';
+      const who = document.getElementById('v-who').innerText || '-';
+      const age = document.getElementById('v-age').innerText || '-';
+      const grade = document.getElementById('v-grade').innerText || '-';
+      const level = document.getElementById('v-level').innerText || '-';
+      const sub = document.getElementById('v-sub').innerText || '-';
+      const reason = document.getElementById('v-reason').innerText || '-';
+      const method = document.getElementById('v-method').innerText || '-';
+      const time = document.getElementById('v-time').innerText || '상관없음';
+      const memo = document.getElementById('v-memo').innerText || '-';
+
+      // 카톡에 붙여넣기 좋은 줄글/템플릿 형태
+      return [
+        "📋 상담 사전설문",
+        "",
+        `• 이름: ${name}`,
+        `• 연락처: ${phone}`,
+        `• 신청자: ${who}`,
+        `• 구분: ${age}`,
+        `• 학년/연령: ${grade}`,
+        `• 학습수준: ${level}`,
+        `• 관심과목: ${sub}`,
+        `• 신청사유: ${reason}`,
+        `• 상담방식: ${method}`,
+        `• 희망시간: ${time}`,
+        `• 기타사항: ${memo}`
+      ].join("\n");
+    }
+
+    /* ✅ 카카오 인앱: 텍스트 복사(실패 시 textarea fallback) */
+    async function copyResultText(){
+      updateLive();
+      const text = buildResultText();
+
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(text);
+          alert("복사 완료! 이제 해당 창을 종료하고 구몬화상학습 채팅창에 바로 붙여넣기 해주시면 됩니다.");
+          return true;
+        }
+        throw new Error("clipboard not available");
+      } catch(e){
+        showTextFallback(text);
+        alert("자동 복사가 제한되어 있어요. 아래 박스에서 전체선택 후 복사해주세요.");
+        return false;
+      }
+    }
+
+    function showTextFallback(text){
+      const box = document.getElementById('text-fallback');
+      const ta = document.getElementById('result-textarea');
+      ta.value = text;
+      box.classList.remove('hidden');
+      setTimeout(()=>{ ta.focus(); ta.select(); }, 100);
+    }
+
+    function selectFallbackText(){
+      const ta = document.getElementById('result-textarea');
+      ta.focus();
+      ta.select();
+    }
+
+    async function tryCopyFallbackText(){
+      const ta = document.getElementById('result-textarea');
+      const text = ta.value || "";
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(text);
+          alert("복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요.");
+        } else {
+          // 구형 환경: execCommand fallback (일부 웹뷰에서 동작)
+          ta.focus(); ta.select();
+          const ok = document.execCommand && document.execCommand('copy');
+          if(ok) alert("복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요.");
+          else alert("복사가 제한됩니다. '전체선택' 후 수동으로 복사해주세요.");
+        }
+      } catch(e){
+        alert("복사가 제한됩니다. '전체선택' 후 수동으로 복사해주세요.");
+      }
+    }
+
+    /* ✅ 캡처 안정화: 폰트 로딩 대기(지원될 때만, 최대 1초) */
+    async function waitForFonts(timeoutMs = 1000){
+      try{
+        if(document.fonts && document.fonts.ready){
+          await Promise.race([
+            document.fonts.ready,
+            new Promise(res => setTimeout(res, timeoutMs))
+          ]);
+        }
+      } catch(e){}
+    }
+
+    let isWorking = false;
+
+    async function makeCanvasFromCaptureArea(){
+      await waitForFonts(1000);
+      updateLive();
+
+      const area = document.getElementById('capture-area');
+
+      const prevFont = area.style.fontFamily;
+      area.style.fontFamily = "Pretendard, -apple-system, system-ui, sans-serif";
+
+      try{
+        const canvas = await html2canvas(area, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+          logging: false
+        });
+        return canvas;
+      } finally {
+        area.style.fontFamily = prevFont;
+      }
+    }
+
+    /* ✅ 메인 액션: 카카오 인앱=텍스트복사 / 그 외=기존 이미지 */
+    async function handleMainAction() {
+      if(isWorking) return;
+      isWorking = true;
+
+      const mainBtn = document.getElementById('main-action-btn');
+      const prevText = mainBtn.innerText;
+      mainBtn.innerText = "처리 중...";
+      mainBtn.style.opacity = "0.8";
+
+      try{
+        // ✅ 카카오 인앱: 이미지 포기 → 텍스트 복사
+        if(isKakaoInApp){
+          await copyResultText();
+          return;
+        }
+
+        // ✅ 그 외: 기존 이미지 흐름 유지
+        const canvas = await makeCanvasFromCaptureArea();
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if(!blob) throw new Error("toBlob failed");
+
+        if (isMobile && navigator.share) {
+          const fileName = `상담신청_${document.getElementById('in_name').value || '결과'}.png`;
+          const file = new File([blob], fileName, { type: "image/png" });
+          try {
+            await navigator.share({ files: [file], title: '상담 사전설문' });
+          } catch (err) {
+            await saveImageFromBlob(blob);
+            alert("공유가 취소되었거나 지원되지 않아 이미지로 저장했습니다.");
+          }
+          return;
+        }
+
+        // PC: 클립보드 이미지 복사 시도
+        try {
+          if (navigator.clipboard && window.ClipboardItem) {
+            const data = [new ClipboardItem({ [blob.type]: blob })];
+            await navigator.clipboard.write(data);
+            alert("복사 성공! 카톡창에 붙여넣기(Ctrl+V) 하세요.");
+          } else {
+            await saveImageFromBlob(blob);
+            alert("복사 기능을 지원하지 않아 이미지로 저장했습니다.");
+          }
+        } catch (err) {
+          await saveImageFromBlob(blob);
+          alert("복사가 불가능하여 이미지로 저장했습니다.");
+        }
+
+      } catch(e){
+        console.error("[ACTION ERROR]", e);
+        alert("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      } finally{
+        mainBtn.innerText = prevText;
+        mainBtn.style.opacity = "1";
+        isWorking = false;
+      }
+    }
+
+    async function saveImage() {
+      if(isWorking) return;
+      isWorking = true;
+
+      const saveBtn = document.getElementById('btn-save-file');
+      const prevText = saveBtn.innerText;
+      saveBtn.innerText = "저장 중...";
+      saveBtn.style.opacity = "0.8";
+
+      try{
+        const canvas = await makeCanvasFromCaptureArea();
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if(!blob) throw new Error("toBlob failed");
+        await saveImageFromBlob(blob);
+      } catch(e){
+        console.error("[SAVE ERROR]", e);
+        alert("이미지 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+      } finally{
+        saveBtn.innerText = prevText;
+        saveBtn.style.opacity = "1";
+        isWorking = false;
+      }
+    }
+
+    async function saveImageFromBlob(blob){
+      const fileName = `상담신청_${document.getElementById('in_name').value || '결과'}.png`;
+      const url = URL.createObjectURL(blob);
+
+      try{
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch(e){
+        window.open(url, "_blank");
+      } finally{
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    }
+
+    // 초기 상태
+    updateProgressUI();
+    updateLive();
+
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') closePreviewSheet();
+    });
+  </script>
+</body>
+</html>
