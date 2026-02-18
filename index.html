@@ -37,8 +37,6 @@
       --main-70: rgba(74,144,226,0.70);
     }
 
-    /* ✅ 다크모드 제거 */
-
     *{ box-sizing: border-box; }
     body{
       font-family: Pretendard, -apple-system, system-ui, sans-serif;
@@ -495,7 +493,7 @@
 
       #final-action-area{ margin-top: 12px !important; }
 
-      /* 모바일에서 최종 미리보기는 반드시 보여야 하므로 sticky 해제(자연스럽게 상단에) */
+      /* 모바일에서 최종 미리보기는 반드시 보여야 하므로 sticky 해제 */
       .summary-card{ position: static; top: auto; }
     }
   </style>
@@ -582,17 +580,18 @@
         <div class="input-group">
           <label>상담 방식 <span class="req-badge">필수</span></label>
           <div class="options">
+            <!-- ✅ 추가 + 기본 선택(checked) -->
+            <input type="radio" name="method" id="m0" value="상관없음" checked onchange="updateLive(); clearGroupError('method');" />
+            <label for="m0">상관없음</label>
+
             <input type="radio" name="method" id="m1" value="전화상담" onchange="updateLive(); clearGroupError('method');" />
             <label for="m1">전화</label>
+
             <input type="radio" name="method" id="m2" value="카톡상담" onchange="updateLive(); clearGroupError('method');" />
             <label for="m2">카톡</label>
+
             <input type="radio" name="method" id="m3" value="문자상담" onchange="updateLive(); clearGroupError('method');" />
             <label for="m3">문자</label>
-          </div>
-          <div class="error-msg" id="err_method">상담 방식을 선택해주세요.</div>
-        </div>
-clearGroupError('method');" />
-            <label for="m4">상관없음</label>
           </div>
           <div class="error-msg" id="err_method">상담 방식을 선택해주세요.</div>
         </div>
@@ -634,7 +633,7 @@ clearGroupError('method');" />
           <div class="item"><b>학습수준:</b> <span id="v-level">-</span></div>
           <div class="item"><b>관심과목:</b> <span id="v-sub">-</span></div>
           <div class="item"><b>신청사유:</b> <span id="v-reason">-</span></div>
-          <div class="item"><b>상담방식:</b> <span id="v-method">-</span></div>
+          <div class="item"><b>상담방식:</b> <span id="v-method">상관없음</span></div>
           <div class="item"><b>희망시간:</b> <span id="v-time">상관없음</span></div>
           <div class="item"><b>기타사항:</b> <span id="v-memo">-</span></div>
         </div>
@@ -868,7 +867,10 @@ clearGroupError('method');" />
       document.getElementById('v-level').innerText = document.querySelector('input[name="level"]:checked')?.value || '해당없음';
       document.getElementById('v-sub').innerText = Array.from(document.querySelectorAll('input[name="subject"]:checked')).map(el => el.value).join(', ') || '-';
       document.getElementById('v-reason').innerText = Array.from(document.querySelectorAll('input[name="reason"]:checked')).map(el => el.value).join(', ') || '-';
-      document.getElementById('v-method').innerText = document.querySelector('input[name="method"]:checked')?.value || '-';
+
+      // ✅ 기본값 '상관없음' 체크되어 있으므로 정상 반영됨
+      document.getElementById('v-method').innerText = document.querySelector('input[name="method"]:checked')?.value || '상관없음';
+
       document.getElementById('v-time').innerText = document.getElementById('hope_time').value;
       document.getElementById('v-memo').innerText = document.getElementById('memo').value || '-';
 
@@ -885,32 +887,28 @@ clearGroupError('method');" />
     const isMobile = /iphone|ipad|ipod|android/i.test(ua);
 
     function finish() {
+      // ✅ 기본 선택이 있으므로 대부분 통과하지만, 혹시 DOM 변경/버그 대비해 유지
       if(!document.querySelector('input[name="method"]:checked')){
         setGroupError('method');
         return alert("상담 방식을 선택해주세요.");
       }
       clearGroupError('method');
 
-      // ✅ 최신 값 반영 + 모바일 sheet 닫기
       updateLive();
       closePreviewSheet();
 
       document.getElementById('form-side').classList.add('hidden');
       document.getElementById('final-action-area').classList.remove('hidden');
 
-      // ✅ 최종 화면에서 미리보기(카드)가 먼저 보여야 하므로 sr-capture로 숨기지 않습니다.
-      // (이전 문제: 모바일에서 캡처 DOM을 숨기다 보니 최종 미리보기가 안 보였음)
-
       const mainBtn = document.getElementById('main-action-btn');
       const saveBtn = document.getElementById('btn-save-file');
       const fallback = document.getElementById('text-fallback');
 
-      // 최종 진입 시 fallback 숨김 초기화
       fallback.classList.add('hidden');
 
       if (isKakaoInApp) {
         mainBtn.innerText = "상담내용 복사하기";
-        saveBtn.classList.add('hidden'); // ✅ 카카오 인앱에서는 이미지 기능 포기
+        saveBtn.classList.add('hidden');
       } else if (isMobile) {
         mainBtn.innerText = "이미지 공유하기";
         saveBtn.classList.remove('hidden');
@@ -932,11 +930,10 @@ clearGroupError('method');" />
       const level = document.getElementById('v-level').innerText || '-';
       const sub = document.getElementById('v-sub').innerText || '-';
       const reason = document.getElementById('v-reason').innerText || '-';
-      const method = document.getElementById('v-method').innerText || '-';
+      const method = document.getElementById('v-method').innerText || '상관없음';
       const time = document.getElementById('v-time').innerText || '상관없음';
       const memo = document.getElementById('v-memo').innerText || '-';
 
-      // 카톡에 붙여넣기 좋은 줄글/템플릿 형태
       return [
         "📋 구몬화상학습 사전 상담설문",
         "",
@@ -995,7 +992,6 @@ clearGroupError('method');" />
           await navigator.clipboard.writeText(text);
           alert("복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요.");
         } else {
-          // 구형 환경: execCommand fallback (일부 웹뷰에서 동작)
           ta.focus(); ta.select();
           const ok = document.execCommand && document.execCommand('copy');
           if(ok) alert("복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요.");
@@ -1053,13 +1049,11 @@ clearGroupError('method');" />
       mainBtn.style.opacity = "0.8";
 
       try{
-        // ✅ 카카오 인앱: 이미지 포기 → 텍스트 복사
         if(isKakaoInApp){
           await copyResultText();
           return;
         }
 
-        // ✅ 그 외: 기존 이미지 흐름 유지
         const canvas = await makeCanvasFromCaptureArea();
         const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
         if(!blob) throw new Error("toBlob failed");
@@ -1076,7 +1070,6 @@ clearGroupError('method');" />
           return;
         }
 
-        // PC: 클립보드 이미지 복사 시도
         try {
           if (navigator.clipboard && window.ClipboardItem) {
             const data = [new ClipboardItem({ [blob.type]: blob })];
